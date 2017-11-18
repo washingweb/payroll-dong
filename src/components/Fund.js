@@ -14,11 +14,7 @@ class Fund extends Component {
 
   handleSubmit = (ev) => {
     ev.preventDefault();
-    const { payroll, account, web3 } = this.props;
-    payroll.addFund({
-      from: account,
-      value: web3.toWei(this.state.fund)
-    });
+
   }
 
   render() {

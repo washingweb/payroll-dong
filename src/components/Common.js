@@ -16,34 +16,15 @@ class Common extends Component {
       }
     }
 
-    this.newFund = payroll.NewFund(updateInfo);
-    this.getPaid = payroll.GetPaid(updateInfo);
-    this.newEmployee = payroll.NewEmployee(updateInfo);
-    this.updateEmployee = payroll.UpdateEmployee(updateInfo);
-    this.removeEmployee = payroll.RemoveEmployee(updateInfo);
 
     this.getInfo();
   }
 
   componentWillUnmount() {
-    this.newFund.stopWatching();
-    this.getPaid.stopWatching();
-    this.newEmployee.stopWatching();
-    this.updateEmployee.stopWatching();
-    this.removeEmployee.stopWatching();
   }
 
   getInfo = () => {
-    const { payroll, account, web3 } = this.props;
-    payroll.getInfo.call({
-      from: account,
-    }).then((result) => {
-      this.setState({
-        balance: web3.fromWei(result[0].toNumber()),
-        runway: result[1].toNumber(),
-        employeeCount: result[2].toNumber()
-      })
-    });
+
   }
 
   render() {

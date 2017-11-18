@@ -17,13 +17,6 @@ class Employer extends Component {
 
   componentDidMount() {
     const { account, payroll } = this.props;
-    payroll.owner.call({
-      from: account
-    }).then((result) => {
-      this.setState({
-        owner: result
-      });
-    })
   }
 
   onSelectTab = ({key}) => {
