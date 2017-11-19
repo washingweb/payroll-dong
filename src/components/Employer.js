@@ -17,11 +17,14 @@ class Employer extends Component {
 
   componentDidMount() {
     const { account, payroll, web3 } = this.props;
-    this.setState({
-      account,
-      payroll,
-      web3,
-      owner: account,
+
+    payroll.owner.call({
+      from: account,
+    })
+    .then((result) => {
+      this.setState({
+        owner: result,
+      })
     });
   }
 
