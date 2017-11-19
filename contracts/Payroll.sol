@@ -14,7 +14,10 @@ contract Payroll is Ownable {
     uint constant payDuration = 10 seconds;
 
     uint totalSalary;
+    uint totalEmployee;
     mapping(address => Employee) public employees;
+
+    address[] employeeList;
 
     modifier employeeExit(address employeeId) {
         var employee = employees[employeeId];
@@ -35,6 +38,8 @@ contract Payroll is Ownable {
 
         employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
         totalSalary = totalSalary.add(employees[employeeId].salary);
+        totalEmployee = totalEmployee.add(1);
+        employeeList.push(employeeId);
     }
 
     function removeEmployee(address employeeId) onlyOwner employeeExit(employeeId) {
@@ -43,6 +48,15 @@ contract Payroll is Ownable {
         _partialPaid(employee);
         totalSalary = totalSalary.sub(employee.salary);
         delete employees[employeeId];
+        totalEmployee = totalEmployee.sub(1);
+        for (uint i = 0; i < employeeList.length; i++) {
+            if (employeeList[i] == employeeId) {
+                delete employeeList[i];
+                employeeList[i] = employeeList[employeeList.length-1];
+                employeeList.length -= 1;
+                break;
+            }
+        }
     }
 
     function updateEmployee(address employeeId, uint salary) onlyOwner employeeExit(employeeId) {
@@ -75,5 +89,23 @@ contract Payroll is Ownable {
 
         employee.lastPayday = nextPayday;
         employee.id.transfer(employee.salary);
+    }
+
+    function checkInfo() returns (uint balance, uint runway, uint employeeCount) {
+        if (totalSalary > 0) {
+            runway = calculateRunway();
+        } else {
+            runway = 0;
+        }
+        balance = this.balance;
+        employeeCount = totalEmployee;
+    }
+
+    function checkEmployee(uint index) returns (address employeeId, uint salary, uint lastPayday) {
+        employeeId = employeeList[index];
+        Employee employee = employees[employeeId];
+        assert(employee.id != 0x0);
+        salary = employee.salary;
+        lastPayday = employee.lastPayday;
     }
 }

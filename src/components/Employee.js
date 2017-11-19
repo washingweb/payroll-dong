@@ -14,11 +14,39 @@ class Employer extends Component {
   }
 
   checkEmployee = () => {
+    const { payroll, account, web3 } = this.props;
 
+    payroll.employees.call(account, {
+      from: account,
+      gas: 1000000,
+    })
+    .then((result) => {
+      this.setState({
+        salary: web3.fromWei(result[1].toNumber()),
+        lastPaidDate: new Date(result[2].toNumber() * 1000).toString(),
+      });
+    });
+
+    web3.eth.getBalance(account, (err, result) => {
+      if (err) {
+        alert('unknown error [TODO]');
+      } else {
+        this.setState({
+          balance: web3.fromWei(result.toNumber()),
+        });
+      }
+    });
   }
 
   getPaid = () => {
-
+    const { payroll, account, web3 } = this.props;
+    return payroll.getPaid({
+      from: account,
+      gas: 1000000,
+    })
+    .then(() => {
+      alert('you are successfully paid');
+    });
   }
 
   renderContent() {

@@ -60,6 +60,7 @@ class App extends Component {
     this.state.web3.eth.getAccounts((error, accounts) => {
       this.setState({
         account: accounts[0],
+        employeeAccount: accounts[1],
       });
       Payroll.deployed().then((instance) => {
         PayrollInstance = instance
@@ -83,7 +84,7 @@ class App extends Component {
   }
 
   renderContent = () => {
-    const { account, payroll, web3, mode } = this.state;
+    const { account, employeeAccount, payroll, web3, mode } = this.state;
 
 
     if (!payroll) {
@@ -94,7 +95,7 @@ class App extends Component {
       case 'employer':
         return <Employer account={account} payroll={payroll} web3={web3} />
       case 'employee':
-        return <Employee account={account} payroll={payroll} web3={web3} />
+        return <Employee account={employeeAccount} payroll={payroll} web3={web3} />
       default:
         return <Alert message="请选一个模式" type="info" showIcon />
     }

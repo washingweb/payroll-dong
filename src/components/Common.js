@@ -9,14 +9,6 @@ class Common extends Component {
   }
 
   componentDidMount() {
-    const { payroll, web3 } = this.props;
-    const updateInfo = (error, result) => {
-      if (!error) {
-        this.getInfo();
-      }
-    }
-
-
     this.getInfo();
   }
 
@@ -24,7 +16,16 @@ class Common extends Component {
   }
 
   getInfo = () => {
+    const { payroll, web3 } = this.props;
 
+    return payroll.checkInfo.call()
+      .then((info) => {
+        this.setState({
+          balance: web3.fromWei(info[0].toNumber()),
+          runway: info[1].toNumber(),
+          employeeCount: info[2].toNumber(),
+        });
+      });
   }
 
   render() {

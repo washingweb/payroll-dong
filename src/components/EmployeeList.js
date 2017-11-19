@@ -49,22 +49,104 @@ class EmployeeList extends Component {
 
   componentDidMount() {
     const { payroll, account, web3 } = this.props;
-
+    payroll.checkInfo.call({
+      from: account,
+    })
+    .then((info) => {
+      const totalEmployee = info[2].toNumber();
+      if (totalEmployee == 0) {
+        this.setState({
+          loading: false,
+        });
+      }
+      this.loadEmployees(totalEmployee);
+    });
   }
 
-  loadEmployees(employeeCount) {
+  loadEmployees(totalEmployee) {
+    const { web3, payroll, account } = this.props;
+    const requests = [];
+    for (var i = 0; i < totalEmployee; i++) {
+      requests.push(payroll.checkEmployee.call(i, {
+        from: account,
+      }));
+    }
+
+    Promise.all(requests)
+      .then((values) => {
+        const employees = values.map(v => ({
+          key: v[0],
+          address: v[0],
+          salary: web3.fromWei(v[1].toNumber()),
+          lastPaidDay: new Date(v[2].toNumber() * 1000).toString(),
+        }));
+
+        this.setState({
+          employees,
+          loading: false,
+        });
+      });
   }
 
   addEmployee = () => {
+    const { web3, payroll, account } = this.props;
 
+    return payroll.addEmployee(
+      this.state.address,
+      this.state.salary,
+      {
+        from: account,
+        gas: 1000000,
+      }
+    )
+    .then(() => {
+      alert('success');
+    })
+    .catch(() => {
+      alert('failed');
+    })
+    .then(() => {
+      this.setState({
+        showModal: false,
+      });
+    });
   }
 
   updateEmployee = (address, salary) => {
+    const { web3, payroll, account } = this.props;
 
+    return payroll.updateEmployee(
+      address,
+      salary,
+      {
+        from: account,
+        gas: 1000000,
+      }
+    )
+    .then(() => {
+      alert('success');
+    })
+    .catch(() => {
+      alert('failed');
+    });
   }
 
   removeEmployee = (employeeId) => {
+    const { payroll, account } = this.props;
 
+    return payroll.removeEmployee(
+      employeeId,
+      {
+        from: account,
+        gas: 1000000,
+      }
+    )
+    .then(() => {
+      alert('success');
+    })
+    .catch(() => {
+      alert('failed');
+    });
   }
 
   renderModal() {

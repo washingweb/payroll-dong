@@ -16,7 +16,13 @@ class Employer extends Component {
   }
 
   componentDidMount() {
-    const { account, payroll } = this.props;
+    const { account, payroll, web3 } = this.props;
+    this.setState({
+      account,
+      payroll,
+      web3,
+      owner: account,
+    });
   }
 
   onSelectTab = ({key}) => {

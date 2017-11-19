@@ -12,9 +12,22 @@ class Fund extends Component {
     this.state = {};
   }
 
+  componentDidMount(props) {
+    const { account, payroll, web3 } = this.props;
+    this.setState({
+      account,
+      payroll,
+      web3,
+    });
+  }
+
   handleSubmit = (ev) => {
     ev.preventDefault();
-
+    const { web3, payroll } = this.props;
+    payroll.addFund({
+      from: this.state.account,
+      value: web3.toWei(this.state.fund),
+    });
   }
 
   render() {
@@ -35,6 +48,7 @@ class Fund extends Component {
               type="primary"
               htmlType="submit"
               disabled={!this.state.fund}
+              onClick={this.handleSubmit}
             >
               增加资金
             </Button>
