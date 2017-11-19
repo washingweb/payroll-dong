@@ -18,7 +18,6 @@ class Employer extends Component {
 
     payroll.employees.call(account, {
       from: account,
-      gas: 1000000,
     })
     .then((result) => {
       this.setState({
