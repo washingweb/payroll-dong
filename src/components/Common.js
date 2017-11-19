@@ -16,16 +16,18 @@ class Common extends Component {
   }
 
   getInfo = () => {
-    const { payroll, web3 } = this.props;
+    const { payroll, web3, account } = this.props;
 
-    return payroll.checkInfo.call()
-      .then((info) => {
-        this.setState({
-          balance: web3.fromWei(info[0].toNumber()),
-          runway: info[1].toNumber(),
-          employeeCount: info[2].toNumber(),
-        });
+    return payroll.checkInfo.call({
+      from: account,
+    })
+    .then((info) => {
+      this.setState({
+        balance: web3.fromWei(info[0].toNumber()),
+        runway: info[1].toNumber(),
+        employeeCount: info[2].toNumber(),
       });
+    });
   }
 
   render() {
