@@ -3,6 +3,9 @@ import { Card, Col, Row, Layout, Alert, message, Button } from 'antd';
 
 import Common from './Common';
 
+import { bind, dispose } from '@/shared/bind';
+import events from '@/shared/events';
+
 class Employer extends Component {
   constructor(props) {
     super(props);
@@ -10,7 +13,19 @@ class Employer extends Component {
   }
 
   componentDidMount() {
+    const { payroll } = this.props;
+
+    this.bindObj = bind(payroll, events, (err) => {
+      if (!err) {
+        this.checkEmployee();
+      }
+    });
+
     this.checkEmployee();
+  }
+
+  componentWillUnmount() {
+    dispose(this.bindObj);
   }
 
   checkEmployee = () => {
@@ -45,7 +60,10 @@ class Employer extends Component {
     })
     .then(() => {
       alert('you are successfully paid');
-    });
+    })
+    .catch(() => {
+      alert('No, no, no.... work until next pay time');
+    })
   }
 
   renderContent() {

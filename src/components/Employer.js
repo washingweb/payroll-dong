@@ -4,6 +4,9 @@ import { Layout, Menu, Alert } from 'antd';
 import Fund from './Fund';
 import EmployeeList from './EmployeeList';
 
+import { bind, dispose } from '@/shared/bind';
+import events from '@/shared/events';
+
 const { Content, Sider } = Layout;
 
 class Employer extends Component {
@@ -18,14 +21,28 @@ class Employer extends Component {
   componentDidMount() {
     const { account, payroll, web3 } = this.props;
 
-    payroll.owner.call({
-      from: account,
-    })
-    .then((result) => {
-      this.setState({
-        owner: result,
+    const updateInfo = () => {
+      payroll.owner.call({
+        from: account,
       })
+      .then((result) => {
+        this.setState({
+          owner: result,
+        })
+      });
+    };
+
+    this.bindObj = bind(payroll, events, (err) => {
+      if (!err) {
+        updateInfo();
+      }
     });
+
+    updateInfo();
+  }
+  
+  componentWillUnmount() {
+    dispose(this.bindObj);
   }
 
   onSelectTab = ({key}) => {

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { Card, Col, Row } from 'antd';
+import { bind, dispose } from '@/shared/bind';
+import events from '@/shared/events';
 
 class Common extends Component {
   constructor(props) {
@@ -9,10 +11,19 @@ class Common extends Component {
   }
 
   componentDidMount() {
+    const { payroll } = this.props;
+
+    this.bindObj = bind(payroll, events, (err) => {
+      if (!err) {
+        this.getInfo();
+      }
+    });
+
     this.getInfo();
   }
 
   componentWillUnmount() {
+    dispose(this.bindObj);
   }
 
   getInfo = () => {

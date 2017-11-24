@@ -19,6 +19,26 @@ contract Payroll is Ownable {
 
     address[] employeeList;
 
+    event NewEmployee(
+        address employee
+    );
+
+    event UpdateEmployee(
+        address employee
+    );
+
+    event RemoveEmployee(
+        address employee
+    );
+
+    event NewFund(
+        uint balance
+    );
+
+    event GetPaid(
+        uint balance
+    );
+
     modifier employeeExit(address employeeId) {
         var employee = employees[employeeId];
         assert(employee.id != 0x0);
@@ -40,6 +60,7 @@ contract Payroll is Ownable {
         totalSalary = totalSalary.add(employees[employeeId].salary);
         totalEmployee = totalEmployee.add(1);
         employeeList.push(employeeId);
+        NewEmployee(employeeId);
     }
 
     function removeEmployee(address employeeId) onlyOwner employeeExit(employeeId) {
@@ -49,11 +70,13 @@ contract Payroll is Ownable {
         totalSalary = totalSalary.sub(employee.salary);
         delete employees[employeeId];
         totalEmployee = totalEmployee.sub(1);
+        // need a cleanup here
         for (uint i = 0; i < employeeList.length; i++) {
             if (employeeList[i] == employeeId) {
                 delete employeeList[i];
                 employeeList[i] = employeeList[employeeList.length-1];
                 employeeList.length -= 1;
+                RemoveEmployee(employeeId);
                 break;
             }
         }
@@ -67,9 +90,11 @@ contract Payroll is Ownable {
         employee.salary = salary.mul(1 ether);
         employee.lastPayday = now;
         totalSalary = totalSalary.add(employee.salary);
+        UpdateEmployee(employeeId);
     }
 
     function addFund() payable returns (uint) {
+        NewFund(this.balance);
         return this.balance;
     }
 
@@ -89,6 +114,7 @@ contract Payroll is Ownable {
 
         employee.lastPayday = nextPayday;
         employee.id.transfer(employee.salary);
+        GetPaid(employee.id.balance);
     }
 
     function checkInfo() returns (uint balance, uint runway, uint employeeCount) {
@@ -103,7 +129,7 @@ contract Payroll is Ownable {
 
     function checkEmployee(uint index) returns (address employeeId, uint salary, uint lastPayday) {
         employeeId = employeeList[index];
-        Employee employee = employees[employeeId];
+        Employee storage employee = employees[employeeId];
         assert(employee.id != 0x0);
         salary = employee.salary;
         lastPayday = employee.lastPayday;

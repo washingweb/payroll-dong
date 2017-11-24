@@ -3,6 +3,9 @@ import { Table, Button, Modal, Form, InputNumber, Input, message, Popconfirm } f
 
 import EditableCell from './EditableCell';
 
+import { bind, dispose } from '@/shared/bind';
+import events from '@/shared/events';
+
 const FormItem = Form.Item;
 
 const columns = [{
@@ -49,18 +52,33 @@ class EmployeeList extends Component {
 
   componentDidMount() {
     const { payroll, account, web3 } = this.props;
-    payroll.checkInfo.call({
-      from: account,
-    })
-    .then((info) => {
-      const totalEmployee = info[2].toNumber();
-      if (totalEmployee == 0) {
-        this.setState({
-          loading: false,
-        });
+
+    const updateInfo = () => {
+      payroll.checkInfo.call({
+        from: account,
+      })
+      .then((info) => {
+        const totalEmployee = info[2].toNumber();
+        if (totalEmployee == 0) {
+          this.setState({
+            loading: false,
+          });
+        }
+        this.loadEmployees(totalEmployee);
+      });
+    };
+
+    this.bindObj = bind(payroll, events, (err) => {
+      if (!err) {
+        updateInfo();
       }
-      this.loadEmployees(totalEmployee);
     });
+
+    updateInfo();
+  }
+
+  componentWillUnmount() {
+    dispose(this.bindObj);
   }
 
   loadEmployees(totalEmployee) {
